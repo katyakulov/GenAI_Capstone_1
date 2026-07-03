@@ -1,3 +1,13 @@
+---
+title: Data Insights App
+emoji: 📊
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: "1.45.1"
+app_file: streamlit_app.py
+pinned: false
+---
 # Data Insights App — Chat with Data
 
 A Streamlit + Python GenAI application that lets users ask business questions about a database without sending the full datasource to the LLM. The agent uses function calling tools to inspect schema, run safe read-only SQL queries, and create support tickets.
