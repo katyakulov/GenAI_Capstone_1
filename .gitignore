@@ -1,5 +1,7 @@
 .venv/
 __pycache__/
-*.db
+*.pyc
 .env
-support_tickets.jsonl
+.streamlit/secrets.toml
+app.log
+data/*.db

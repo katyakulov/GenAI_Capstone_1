@@ -1,125 +1,132 @@
-# Data Insights App
+# Data Insights App — Chat with Data
 
-A Python + Streamlit GenAI app that lets users chat with business data safely.
+A Streamlit + Python GenAI application that lets users ask business questions about a database without sending the full datasource to the LLM. The agent uses function calling tools to inspect schema, run safe read-only SQL queries, and create support tickets.
 
-## Features
+## Requirements coverage
 
-- Chat with a SQLite database through an LLM agent
-- The full datasource is **not** sent to the LLM
-- Function/tool calling is used for:
-  1. `get_data_summary`
-  2. `query_database`
-  3. `create_support_ticket`
-- Safety guard blocks dangerous SQL operations such as `DELETE`, `DROP`, `INSERT`, `UPDATE`, `ALTER`, `TRUNCATE`
-- Streamlit UI shows business information outside the chat:
-  - row count
-  - revenue
-  - profit
-  - average profit per order
-  - revenue chart by category
-  - sample questions
-- Console logs are printed for tool calls
-- Support ticket can be created:
-  - as a GitHub issue if `GITHUB_REPO` and `GITHUB_TOKEN` are configured
-  - as a local JSONL file otherwise
-- Auto-generates a SQLite database with 650 rows
+| Requirement | Implementation |
+|---|---|
+| Data has at least 500 rows/entities | SQLite sample DB contains 600 customers, 1,600 deals, and 120 support tickets. |
+| Python agent | `app/agent.py` |
+| Streamlit UI | `streamlit_app.py` |
+| Datasource not fully sent to LLM | Only schema, aggregate results, and limited query output are passed through tools. |
+| Business UI information outside chat | KPI cards, revenue chart, sample table preview, sample queries. |
+| Console logs | Python `logging` is configured in `streamlit_app.py`; tool calls are logged. |
+| Support ticket workflow | Manual form + agent tool `create_support_ticket`. GitHub issue if configured, local ticket fallback. |
+| Function calling | Three tools: `get_database_schema`, `run_safe_sql_query`, `create_support_ticket`. |
+| At least 2 different tools | Uses schema, SQL, and ticket tools. |
+| Safety feature | SQL guard blocks DELETE, DROP, UPDATE, INSERT, ALTER, TRUNCATE and only allows SELECT. |
+| README with workflow screenshots | See screenshots below. |
+| Git upload | Push this root folder to the `main` or `master` branch. |
 
 ## Project structure
 
 ```text
 .
-├── app.py
+├── app/
+│   ├── agent.py
+│   ├── db.py
+│   └── tickets.py
+├── data/
+│   ├── generate_data.py
+│   └── sales_support.db
+├── screenshots/
+│   ├── 01_dashboard.png
+│   ├── 02_chat.png
+│   └── 03_ticket.png
+├── .streamlit/
+│   └── config.toml
 ├── requirements.txt
-├── .gitignore
-├── README.md
-└── screenshots/
+├── streamlit_app.py
+└── README.md
 ```
 
 ## Setup
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-name>
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate        # macOS/Linux
+# .venv\Scripts\activate         # Windows PowerShell
 pip install -r requirements.txt
 ```
 
-For macOS/Linux:
+Create a local `.env` file:
 
-```bash
-source .venv/bin/activate
+```env
+OPENAI_API_KEY=your_openai_api_key
+# Optional GitHub issue creation:
+GITHUB_TOKEN=your_github_personal_access_token
+GITHUB_REPO=owner/repository
 ```
 
-## Environment variables
+Do not commit `.env` or `.streamlit/secrets.toml`.
 
-Required:
-
-```bash
-set OPENAI_API_KEY=your_openai_api_key
-```
-
-Optional GitHub support ticket integration:
+## Run locally
 
 ```bash
-set GITHUB_REPO=owner/repository
-set GITHUB_TOKEN=your_github_token
+python data/generate_data.py
+streamlit run streamlit_app.py
 ```
 
-For macOS/Linux use `export` instead of `set`.
-
-## Run
-
-```bash
-streamlit run app.py
-```
+Open the local URL shown in the terminal.
 
 ## Example workflow
 
-1. Open the app.
-2. Review dashboard metrics: rows, revenue, profit, average profit.
-3. Ask: `Which region has the highest revenue?`
-4. The agent calls `query_database` with a safe `SELECT` query.
-5. Ask: `Delete the orders table`.
-6. The safety feature blocks the request.
-7. Ask: `Create a support ticket: data looks incorrect for Bukhara`.
-8. The app creates a GitHub issue if GitHub variables are configured, otherwise it saves the ticket locally.
+### 1. Dashboard view
 
-## Screenshots from usage example
+The user sees business KPIs, a revenue chart, sample rows, and sample questions before using chat.
 
-Add your real screenshots after running the app:
+![Dashboard](screenshots/01_dashboard.png)
+
+### 2. Chat with data
+
+Example prompt:
 
 ```text
-screenshots/01-dashboard.png
-screenshots/02-chat-query.png
-screenshots/03-safety-block.png
-screenshots/04-support-ticket.png
+Which region has the highest won revenue?
 ```
 
-Example Markdown links:
+Expected workflow:
 
-```md
-![Dashboard](screenshots/01-dashboard.png)
-![Chat query](screenshots/02-chat-query.png)
-![Safety block](screenshots/03-safety-block.png)
-![Support ticket](screenshots/04-support-ticket.png)
+1. Agent calls `get_database_schema`.
+2. Agent calls `run_safe_sql_query` with a SELECT-only aggregate query.
+3. Agent summarizes the result without receiving the full database.
+
+![Chat workflow](screenshots/02_chat.png)
+
+### 3. Support ticket
+
+The user can ask:
+
+```text
+Create a support ticket because I cannot access customer revenue details.
 ```
 
-## Upload to GitHub
+The agent calls `create_support_ticket`. If GitHub credentials are configured, it creates a GitHub issue. Otherwise, it creates a local database ticket.
+
+![Support ticket](screenshots/03_ticket.png)
+
+## Safety behavior
+
+Dangerous requests are blocked. Example:
+
+```text
+Delete all lost deals.
+```
+
+The assistant should refuse because the system prompt and SQL validator allow only read-only SELECT queries.
+
+## Git upload instructions
 
 ```bash
 git init
 git branch -M main
 git add .
-git commit -m "Add data insights genAI app"
-git remote add origin https://github.com/<owner>/<repo>.git
+git commit -m "Initial data insights app"
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
 git push -u origin main
 ```
 
-## Hosted solution bonus: Hugging Face Spaces
+## Optional deployment
 
-1. Create a new Space.
-2. Select Streamlit SDK.
-3. Upload `app.py`, `requirements.txt`, and `README.md`.
-4. Add `OPENAI_API_KEY` in Space secrets.
-5. Run the Space.
+For Streamlit Community Cloud or Hugging Face Spaces, add the repository and configure secrets in the platform settings instead of committing credentials.
