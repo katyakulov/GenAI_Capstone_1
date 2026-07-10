@@ -3,9 +3,8 @@ title: Data Insights App
 emoji: 📊
 colorFrom: blue
 colorTo: green
-sdk: streamlit
-sdk_version: "1.45.1"
-app_file: streamlit_app.py
+sdk: docker
+app_port: 7860
 pinned: false
 ---
 # Data Insights App — Chat with Data
@@ -139,4 +138,10 @@ git push -u origin main
 
 ## Optional deployment
 
-For Streamlit Community Cloud or Hugging Face Spaces, add the repository and configure secrets in the platform settings instead of committing credentials.
+## Deployment
+
+This application is deployed on Hugging Face Docker Spaces.
+
+Live demo:
+
+https://huggingface.co/spaces/Katherina14/GenAI_Capstone1
