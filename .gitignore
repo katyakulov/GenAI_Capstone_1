@@ -4,4 +4,3 @@ __pycache__/
 .env
 .streamlit/secrets.toml
 app.log
-data/*.db
