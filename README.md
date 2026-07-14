@@ -136,6 +136,36 @@ git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
 git push -u origin main
 ```
 
+# GenAI Capstone 1 – Data Insights App
+
+## Live Demo
+https://huggingface.co/spaces/Katherina14/GenAI_Capstone1
+
+## Features
+- Interactive dashboard
+- AI business assistant
+- Support ticket creation
+- SQL analytics
+
+## Installation
+
+pip install -r requirements.txt
+
+streamlit run streamlit_app.py
+
+## Screenshots
+
+(скриншоты)
+
+## Models Used
+
+- GPT-4.1-mini (или какая модель используется)
+- Streamlit
+- SQLite
+
+## Repository
+https://github.com/katyakulov/GenAI_Capstone_1
+
 ## Optional deployment
 
 ## Deployment
@@ -145,3 +175,12 @@ This application is deployed on Hugging Face Docker Spaces.
 Live demo:
 
 https://huggingface.co/spaces/Katherina14/GenAI_Capstone1
+
+## 🚀 Live Demo
+
+👉 https://huggingface.co/spaces/Katherina14/GenAI_Capstone1
+
+Note:
+The application requires an OpenAI API key configured via Hugging Face Secrets
+(OPENAI_API_KEY) to enable the AI agent functionality.
+The dashboard and data exploration features work independently.
